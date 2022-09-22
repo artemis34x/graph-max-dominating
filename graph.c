@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "graph.h"
 
@@ -172,22 +173,38 @@ graph_foreach(Graph g, int source,
     }
 }
 
+/* create a new text file containing the graph */
 void
 print_graph(Graph g){
+    char dest[300]="";
+    FILE *f;
+    // mode write
+    f = fopen("print_graph.txt","w");
     for(int source=0;source<g->n;source++){
-        printf("%d :\t", source);
-        for(int i=0;i<g->alist[source]->d;i++)
-            printf("%d,",g->alist[source]->list[i]);
-        printf("\n");
+        char src[150]=" : ";
+        strcpy(dest,"");
+        sprintf(dest,"%d",source);
+        strcat(dest,src);
+        int succs[g->alist[source]->d];
+        for(int i=0;i<g->alist[source]->d;i++){
+            sprintf(src,"%d",g->alist[source]->list[i]);
+            strcat(dest,src);
+            strcat(dest,", ");
+        }
+        strcat(dest,"\n");
+        //final string
+        fprintf(f,dest); 
     }
+    fclose(f);
+    return;
 }
 
 /* return the first node with the highest degree */
 int 
-max_degree(Graph g,int size){
+max_degree(Graph g){
     int max = 0;
     /* find the highest degree */
-    for(int i=0;i<size;i++){
+    for(int i=0;i<g->n;i++){
         /* check only non assigned nodes */
         if(g->alist[i]->p == 0){
             int tmp = graph_out_degree(g,i);
@@ -196,7 +213,7 @@ max_degree(Graph g,int size){
         }
     }
     /* get the node number */
-    for(int i=0;i<size;i++){
+    for(int i=0;i<g->n;i++){
         if(graph_out_degree(g,i) == max && g->alist[i]->p == 0)
             return i;
     }
@@ -206,25 +223,51 @@ max_degree(Graph g,int size){
 
 /* check if the max dominating set is done */ 
 int 
-matched(Graph g,int size){
-    for(int i=0;i<size;i++){
+matched(Graph g){
+    for(int i=0;i<g->n;i++){
         if(g->alist[i]->p == 0)
+            /* some node still unassigned */
             return 0;
     }
-    /* some node still unassigned */
     return 1;
 }
-
-int
-dominating_set(Graph g,int size){
-    int result[],j=0;
-    while(matched(g,size) == 1){
-        int node = max_degree(g,size);
-        if(node == -1)
-            return -1;
-        result[j] = node;
+/* return an array of int  containing the dominating set */
+void
+dominating_set(Graph g){
+    //counter for the result array size
+    int j=0;
+    //keep looping until the whole graph is covered
+    while(matched(g) == 0){
+        //get the highest node
+        int node = max_degree(g);
+        //printf("node %d : %d\n",j,node);
+        //check for error
+        if(node == -1){
+            puts("error");
+            return;
+        }
         j++;
+        //flag the current node
         g->alist[node]->p = 2;
+        //flag all the node around it to 1
         for(int i=0;i < g->alist[node]->d;i++){
             int succ = g->alist[node]->list[i];
-            g->alist[succ]->p = 1;
+            if(g->alist[succ]->p == 0)
+                g->alist[succ]->p = 1;
+        }
+    }
+    int result[j];
+    //fill the array
+    for(int i=0,k=0;i < g->n;i++){
+        if(g->alist[i]->p == 2){
+            result[k] = i;
+            k++;
+        }
+    }
+    printf("\ndominating set[%d] : ",j);
+    for(int i=0;i<j-1;i++){
+        printf("%d, ",result[i]);
+    }
+    printf("%d\n",result[j-1]);
+    return;
+}

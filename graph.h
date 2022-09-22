@@ -29,8 +29,14 @@ void graph_foreach(Graph g, int source,
         void (*f)(Graph g, int source, int sink, void *data),
         void *data);
 
+//store the graph in a text file
 void print_graph(Graph g);
 
-int max_degree(Graph g, int size);
+//find the highest degree node
+int max_degree(Graph g);
 
-int matched(Graph g,  int size);
+//check if the graph had been covered
+int matched(Graph g);
+
+//print the dominating set
+void dominating_set(Graph g);
