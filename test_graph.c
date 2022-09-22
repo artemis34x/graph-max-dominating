@@ -35,7 +35,7 @@ main(int argc, char **argv)
         }
     }
     print_graph(g);
-    //dominating_set(g);
+    dominating_set(g);
     /* free it */
     graph_destroy(g);
 
