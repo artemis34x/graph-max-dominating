@@ -249,12 +249,17 @@ dominating_set(Graph g){
         j++;
         //flag the current node
         g->alist[node]->p = 2;
+        printf("\ncenter flag: %d",node);
+        printf("\nflag neighbour of %d : ",node); 
         //flag all the node around it to 1
         for(int i=0;i < g->alist[node]->d;i++){
             int succ = g->alist[node]->list[i];
-            if(g->alist[succ]->p == 0)
+            printf("%d, ",succ);
+            if(g->alist[succ]->p == 0){
                 g->alist[succ]->p = 1;
+            }
         }
+        printf("\n");
     }
     int result[j];
     //fill the array
